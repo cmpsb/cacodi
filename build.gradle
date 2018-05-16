@@ -1,0 +1,113 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = 'net.wukl'
+archivesBaseName = 'cacodi'
+version = '1.0.0'
+
+sourceCompatibility = '1.10'
+targetCompatibility = '1.10'
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'ch.qos.logback:logback-classic:1.2.+'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.+'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.+'
+
+    testImplementation 'org.mockito:mockito-core:2.18.+'
+    testImplementation 'org.assertj:assertj-core:3.10.+'
+}
+
+test {
+    useJUnitPlatform()
+
+    failFast = true
+
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = '0.8.1'
+}
+
+checkstyle {
+    toolVersion = '8.10'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: 'USERNAME', password: 'PASSWORD')
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: 'USERNAME', password: 'PASSWORD')
+            }
+
+            pom.project {
+                name 'Cacodi'
+                packaging 'jar'
+                description 'A very simple, but powerful dependency injector'
+                url 'https://git.wukl.net/wukl/cacodi'
+
+                scm {
+                    connection 'scm:git:https://git.wukl.net/wukl/cacodi.git'
+                    developerConnection 'scm:git:ssh://git.wukl.net:wukl/cacodi.git'
+                    url 'https://git.wukl.net/wukl/cacodi.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'wukl'
+                        name 'Luc Everse'
+                        email 'luc@wukl.net'
+                    }
+                }
+            }
+        }
+    }
+}
