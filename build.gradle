@@ -2,9 +2,12 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
-version = '1.0.0'
 group = 'net.wukl'
+archivesBaseName = 'cacodi'
+version = '1.0.0'
 
 sourceCompatibility = '1.10'
 targetCompatibility = '1.10'
@@ -44,5 +47,67 @@ jacocoTestReport {
     reports {
         xml.enabled = true
         html.enabled = true
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: 'USERNAME', password: 'PASSWORD')
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: 'USERNAME', password: 'PASSWORD')
+            }
+
+            pom.project {
+                name 'Cacodi'
+                packaging 'jar'
+                description 'A very simple, but powerful dependency injector'
+                url 'https://git.wukl.net/wukl/cacodi'
+
+                scm {
+                    connection 'scm:git:https://git.wukl.net/wukl/cacodi.git'
+                    developerConnection 'scm:git:ssh://git.wukl.net:wukl/cacodi.git'
+                    url 'https://git.wukl.net/wukl/cacodi.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'wukl'
+                        name 'Luc Everse'
+                        email 'luc@wukl.net'
+                    }
+                }
+            }
+        }
     }
 }
