@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ import java.util.Map;
  *
  * @author Luc Everse
  */
-public class DependencyResolver {
+public class DependencyResolver implements IDependencyResolver {
     private static final Logger logger = LoggerFactory.getLogger(DependencyResolver.class);
     /**
      * The current list of instances.
@@ -113,13 +114,15 @@ public class DependencyResolver {
                 return obj;
             } catch (final InstantiationException ex) {
                 logger.debug("Can't instantiate the {}: not an instantiable class",
-                             type.getCanonicalName(), ex);
+                             type.getCanonicalName());
             } catch (final IllegalAccessException ex) {
                 logger.debug("Can't instantiate the {}: class, constructor or field inaccessible",
-                             type.getCanonicalName(), ex);
+                             type.getCanonicalName());
             } catch (final InvocationTargetException ex) {
                 logger.debug("Can't instantiate the {}: exception in constructor: ",
                              type.getCanonicalName(), ex);
+            } catch (final UnresolvableDependencyException ex) {
+                // Recursive construction failed. Already logged, try the next
             }
         }
 
@@ -163,8 +166,8 @@ public class DependencyResolver {
      *
      * @throws IllegalAccessException if at least one field cannot be modified
      */
-    private <T> void populateFields(final T obj,
-                                    final Class<T> type) throws IllegalAccessException {
+    private <T> void populateFields(final T obj, final Class<T> type)
+            throws IllegalAccessException {
         final List<Field> fields = this.collectInjectableFields(type);
 
         for (final Field field : fields) {
@@ -215,16 +218,7 @@ public class DependencyResolver {
         return fields;
     }
 
-    /**
-     * Looks up a dependency by its type.
-     * <p>
-     * Types being subclassed may act finicky, since this tries to match to the exact type.
-     *
-     * @param type the dependency type
-     * @param <T>  the dependency type
-     * @return an instance of the dependency
-     * @throws UnresolvableDependencyException if one or more dependencies could not be satisfied
-     */
+    /** {@inheritDoc} */
     @SuppressWarnings("unchecked")
     public <T> T get(final Class<T> type) {
         // If there's a cached version ready, return that.
@@ -247,85 +241,51 @@ public class DependencyResolver {
         return instance;
     }
 
-    /**
-     * Statically adds an instance to the resolver and set the type under which is should be found.
-     * <p>
-     * The alias type must the instance type's superclass.
-     *
-     * @param iface the interface the instance implements
-     * @param impl  the actual implementation
-     * @param <T>   the type of the interface
-     * @param <S>   the type of the implementation
-     */
+    /** {@inheritDoc} */
     public <S, T extends S> void add(final Class<S> iface, final T impl) {
         this.implementations.put(iface, impl.getClass());
         this.instances.put(iface, impl);
     }
 
-    /**
-     * Registers a factory for a service.
-     *
-     * @param iface   the interface the instance implements
-     * @param factory the factory
-     * @param <S>     the type of the interface
-     */
+    /** {@inheritDoc} */
     public <S> void addFactory(final Class<S> iface, final Factory<S> factory) {
         this.factories.put(iface, factory);
     }
 
-    /**
-     * Statically adds an instance to the resolver and set the type under which is should be found,
-     * but only if there was no other implementor in place.
-     * <p>
-     * The alias type must the instance type's superclass.
-     *
-     * @param iface the interface the instance implements
-     * @param impl  the actual implementation
-     * @param <T>   the type of the interface
-     * @param <S>   the type of the implementation
-     */
-    public <S, T extends S> void addDefault(final Class<S> iface, final T impl) {
+    /** {@inheritDoc} */
+    public <S, T extends S> S addDefault(final Class<S> iface, final T impl) {
         if (!this.implementations.containsKey(iface)) {
             this.add(iface, impl);
         }
+
+        return iface.cast(this.instances.get(iface));
     }
 
-    /**
-     * Registers a factory for a service, but only if there was no other factory in place.
-     *
-     * @param iface   the interface the instance implements
-     * @param factory the factory
-     * @param <S>     the type of the interface
-     */
-    public <S> void addDefaultFactory(final Class<S> iface, final Factory<S> factory) {
+    /** {@inheritDoc} */
+    @SuppressWarnings("unchecked")
+    public <S> Factory<S> addDefaultFactory(final Class<S> iface, final Factory<S> factory) {
         if (!this.factories.containsKey(iface)) {
             this.factories.put(iface, factory);
         }
+
+        return (Factory<S>) this.factories.get(iface);
     }
 
-    /**
-     * Registers an interface implementation.
-     *
-     * @param iface the interface of the implementor
-     * @param impl  the implementor class
-     * @param <T>   the type of the interface
-     * @param <S>   the type of the implementation
-     */
+    /** {@inheritDoc} */
     public <S, T extends S> void implement(final Class<S> iface, final Class<T> impl) {
+        if (impl.isInterface() || Modifier.isAbstract(impl.getModifiers())) {
+            throw new UninstantiableTypeException(impl.getCanonicalName());
+        }
+
         this.implementations.put(iface, impl);
     }
 
-    /**
-     * Registers an interface implementation, but only if there was no implementor in place.
-     *
-     * @param iface the interface of the implementor
-     * @param impl  the implementor class
-     * @param <T>   the type of the interface
-     * @param <S>   the type of the implementation
-     */
-    public <S, T extends S> void implementDefault(final Class<S> iface, final Class<T> impl) {
+    /** {@inheritDoc} */
+    public <S, T extends S> Class<?> implementDefault(final Class<S> iface, final Class<T> impl) {
         if (!this.implementations.containsKey(iface)) {
             this.implement(iface, impl);
         }
+
+        return this.implementations.get(iface);
     }
 }
