@@ -114,13 +114,15 @@ public class DependencyResolver implements IDependencyResolver {
                 return obj;
             } catch (final InstantiationException ex) {
                 logger.debug("Can't instantiate the {}: not an instantiable class",
-                             type.getCanonicalName(), ex);
+                             type.getCanonicalName());
             } catch (final IllegalAccessException ex) {
                 logger.debug("Can't instantiate the {}: class, constructor or field inaccessible",
-                             type.getCanonicalName(), ex);
+                             type.getCanonicalName());
             } catch (final InvocationTargetException ex) {
                 logger.debug("Can't instantiate the {}: exception in constructor: ",
                              type.getCanonicalName(), ex);
+            } catch (final UnresolvableDependencyException ex) {
+                // Recursive construction failed. Already logged, try the next
             }
         }
 
