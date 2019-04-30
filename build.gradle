@@ -38,11 +38,11 @@ test {
 }
 
 jacoco {
-    toolVersion = '0.8.1'
+    toolVersion = '0.8.3'
 }
 
 checkstyle {
-    toolVersion = '8.10'
+    toolVersion = '8.20'
 }
 
 jacocoTestReport {
