@@ -45,6 +45,10 @@ checkstyle {
     toolVersion = '8.20'
 }
 
+pmd {
+    ignoreFailures = true
+}
+
 jacocoTestReport {
     reports {
         xml.enabled = true
