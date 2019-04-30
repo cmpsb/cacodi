@@ -56,6 +56,13 @@ jacocoTestReport {
     }
 }
 
+jar {
+    from ('.') {
+        include 'LICENSE'
+        into 'net/wukl/cacodi'
+    }
+}
+
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
