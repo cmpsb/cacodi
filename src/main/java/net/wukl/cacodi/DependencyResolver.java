@@ -44,7 +44,7 @@ public class DependencyResolver implements IDependencyResolver {
         this.implementations = new HashMap<>();
         this.factories = new HashMap<>();
 
-        this.instances.put(DependencyResolver.class, this);
+        this.preloadInstances();
     }
 
     /**
@@ -57,7 +57,15 @@ public class DependencyResolver implements IDependencyResolver {
         this.implementations = new HashMap<>(other.implementations);
         this.factories = new HashMap<>(other.factories);
 
+        this.preloadInstances();
+    }
+
+    /**
+     * Pre-loads the resolver with useful dependencies.
+     */
+    private void preloadInstances() {
         this.instances.put(DependencyResolver.class, this);
+        this.instances.put(ClassLoader.class, this.getClass().getClassLoader());
     }
 
     /**
