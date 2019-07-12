@@ -163,7 +163,43 @@ public class DefaultDependencyResolverTest {
         assertThat(other).isSameAs(thing);
     }
 
+    @Test
+    public void testInstantiateFactory() {
+        this.resolver.addFactory(SimpleImplicit.class, InstantiableFactory.class);
+        final var factory = this.resolver.get(InstantiableFactory.class);
+        final var simpleImplicit = this.resolver.get(SimpleImplicit.class);
+        assertThat(simpleImplicit).isNotNull();
+        assertThat(factory.numInvocations).isOne();
+    }
+
+    @Test
+    public void testInstantiableDefaultFactory() {
+        this.resolver.addFactory(SimpleImplicit.class, di -> null);
+        this.resolver.addDefaultFactory(SimpleImplicit.class, InstantiableFactory.class);
+        final var factory = this.resolver.get(InstantiableFactory.class);
+        final var simpleImplicit = this.resolver.get(SimpleImplicit.class);
+        assertThat(simpleImplicit).isNull();
+        assertThat(factory.numInvocations).isZero();
+    }
+
     private class PrivateInnerClass {
 
+    }
+
+    public static final class InstantiableFactory implements Factory<SimpleImplicit> {
+        private int numInvocations = 0;
+
+        /**
+         * Builds the service.
+         *
+         * @param resolver the dependency resolver invoking the factory
+         * @return an instance of the service
+         * @throws UnresolvableDependencyException if the dependency cannot be resolved
+         */
+        @Override
+        public SimpleImplicit build(final DependencyResolver resolver) {
+            ++this.numInvocations;
+            return new SimpleImplicit(new NullaryConstructor(), null);
+        }
     }
 }
