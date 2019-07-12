@@ -10,20 +10,6 @@ import java.util.function.Function;
  */
 public interface BasicDependencyResolver extends Function<Class<?>, Object> {
     /**
-     * A global, non-replaceable resolver instance.
-     */
-    DependencyResolver GLOBAL_INSTANCE = buildInstance();
-
-    /**
-     * Builds an instance of the default resolver.
-     *
-     * @return the default resolver, distinct from the global instance.
-     */
-    static DependencyResolver buildInstance() {
-        return new DefaultDependencyResolver();
-    }
-
-    /**
      * Looks up a dependency by its type, possibly constructing a new instance of that type.
      *
      * Be careful when requesting abstract or concrete classes (i.e., not interfaces), because if
