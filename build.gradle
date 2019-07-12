@@ -7,7 +7,7 @@ apply plugin: 'signing'
 
 group = 'net.wukl'
 archivesBaseName = 'cacodi'
-version = '1.2.0'
+version = '1.4.0'
 
 sourceCompatibility = '1.10'
 targetCompatibility = '1.10'

@@ -214,6 +214,12 @@ public class DefaultDependencyResolverTest {
         assertThat(factory.numInvocations).isZero();
     }
 
+    @Test
+    public void testClassLoaderIsResolversLoader() {
+        final var cl = this.resolver.get(ClassLoader.class);
+        assertThat(cl).isSameAs(this.resolver.getClass().getClassLoader());
+    }
+
     private class PrivateInnerClass {
 
     }
