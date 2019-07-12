@@ -3,7 +3,7 @@ package net.wukl.cacodi;
 /**
  * A dependency resolver that can call factories for classes that are requested.
  */
-public interface FactoryInvokingDependencyResolver extends DependencyResolver {
+public interface FactoryInvokingDependencyResolver extends BasicDependencyResolver {
     /**
      * Registers a factory for a service.
      *

@@ -3,7 +3,7 @@ package net.wukl.cacodi;
 /**
  * A dependency resolver that caches the instances it builds.
  */
-public interface CachingDependencyResolver extends DependencyResolver {
+public interface CachingDependencyResolver extends BasicDependencyResolver {
     /**
      * Statically adds an instance to the resolver and set the type under which is should be found.
      *

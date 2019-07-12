@@ -17,10 +17,7 @@ import java.util.Map;
 /**
  * A dependency resolver.
  */
-public class DefaultDependencyResolver
-        implements CachingDependencyResolver,
-                FactoryInvokingDependencyResolver,
-                InterfaceMappingDependencyResolver {
+public class DefaultDependencyResolver implements DependencyResolver {
     private static final Logger logger = LoggerFactory.getLogger(DefaultDependencyResolver.class);
 
     /**
@@ -67,7 +64,7 @@ public class DefaultDependencyResolver
      */
     private void preloadInstances() {
         this.instances.put(DefaultDependencyResolver.class, this);
-        this.instances.put(DependencyResolver.class, this);
+        this.instances.put(BasicDependencyResolver.class, this);
         this.instances.put(CachingDependencyResolver.class, this);
         this.instances.put(FactoryInvokingDependencyResolver.class, this);
         this.instances.put(InterfaceMappingDependencyResolver.class, this);

@@ -4,7 +4,7 @@ package net.wukl.cacodi;
  * A dependency resolver that is interface-aware and can map them to registered, implementing
  * types.
  */
-public interface InterfaceMappingDependencyResolver extends DependencyResolver {
+public interface InterfaceMappingDependencyResolver extends BasicDependencyResolver {
     /**
      * Registers an interface implementation.
      *
