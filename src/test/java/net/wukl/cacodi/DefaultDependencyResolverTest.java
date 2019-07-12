@@ -14,6 +14,8 @@ import net.wukl.cacodi.classes.ThingDoerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Supplier;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -161,6 +163,36 @@ public class DefaultDependencyResolverTest {
         final var other = newResolver.get(String.class);
 
         assertThat(other).isSameAs(thing);
+    }
+
+    @Test
+    public void testSupplierFactory() {
+        this.resolver.addFactory(SimpleImplicit.class,
+                () -> new SimpleImplicit(null, new NullaryConstructor())
+        );
+        final var simpleImplicit = this.resolver.get(SimpleImplicit.class);
+        assertThat(simpleImplicit).extracting(SimpleImplicit::getLeft).isNull();
+        assertThat(simpleImplicit).extracting(SimpleImplicit::getRight).isNotNull();
+    }
+
+    @Test
+    public void testDefaultSupplierFactory() {
+        final Supplier<SimpleImplicit> supplier =
+                () -> new SimpleImplicit(new NullaryConstructor(), null);
+        final var factory = this.resolver.addDefaultFactory(SimpleImplicit.class, supplier);
+        final var simpleImplicit = this.resolver.get(SimpleImplicit.class);
+        assertThat(simpleImplicit).extracting(SimpleImplicit::getLeft).isNotNull();
+        assertThat(simpleImplicit).extracting(SimpleImplicit::getRight).isNull();
+        assertThat(factory).isInstanceOf(IDependencyResolver.CapturedSupplier.class)
+                .extracting(f -> ((IDependencyResolver.CapturedSupplier) f).getSupplier())
+                .isSameAs(supplier);
+    }
+
+    @Test
+    public void testCapturedSupplierIsManual() {
+        assertThrows(UnresolvableDependencyException.class,
+                () -> this.resolver.get(IDependencyResolver.CapturedSupplier.class)
+        );
     }
 
     @Test
