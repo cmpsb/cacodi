@@ -69,7 +69,9 @@ public interface IDependencyResolver {
      * @param factoryClass the factory class to instantiate and register
      * @param <S> the type of the service interface
      */
-    default <S> void addFactory(final Class<S> iface, final Class<Factory<S>> factoryClass) {
+    default <S> void addFactory(
+            final Class<S> iface, final Class<? extends Factory<S>> factoryClass
+    ) {
         this.addFactory(iface, this.get(factoryClass));
     }
 
@@ -99,7 +101,7 @@ public interface IDependencyResolver {
      *
      * @return the factory currently in the resolver, after updating
      */
-    <S> Factory<S> addDefaultFactory(Class<S> iface, Class<Factory<S>> factoryClass);
+    <S> Factory<S> addDefaultFactory(Class<S> iface, Class<? extends Factory<S>> factoryClass);
 
     /**
      * Registers an interface implementation.

@@ -285,7 +285,7 @@ public class DependencyResolver implements IDependencyResolver {
     @Override
     @SuppressWarnings("unchecked")
     public <S> Factory<S> addDefaultFactory(
-            final Class<S> iface, final Class<Factory<S>> factoryClass
+            final Class<S> iface, final Class<? extends Factory<S>> factoryClass
     ) {
         if (!this.factories.containsKey(iface)) {
             this.factories.put(iface, this.get(factoryClass));
