@@ -271,6 +271,29 @@ public class DependencyResolver implements IDependencyResolver {
         return (Factory<S>) this.factories.get(iface);
     }
 
+    /**
+     * Registers a factory for the service, but only if there was no other factory in place.
+     *
+     * The factory class is instantiated by the resolver before the factory is registered and
+     * only if no other factory was in place.
+     *
+     * @param iface the interface the service implements
+     * @param factoryClass the factory class to instantiate and register
+     *
+     * @return the factory currently in the resolver, after updating
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <S> Factory<S> addDefaultFactory(
+            final Class<S> iface, final Class<? extends Factory<S>> factoryClass
+    ) {
+        if (!this.factories.containsKey(iface)) {
+            this.factories.put(iface, this.get(factoryClass));
+        }
+
+        return (Factory<S>) this.factories.get(iface);
+    }
+
     /** {@inheritDoc} */
     public <S, T extends S> void implement(final Class<S> iface, final Class<T> impl) {
         if (impl.isInterface() || Modifier.isAbstract(impl.getModifiers())) {
