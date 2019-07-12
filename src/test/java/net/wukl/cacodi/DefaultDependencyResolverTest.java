@@ -31,7 +31,7 @@ public class DefaultDependencyResolverTest {
 
     @BeforeEach
     public void before() {
-        this.resolver = new DependencyResolver();
+        this.resolver = DependencyResolver.buildInstance();
     }
 
     @Test
@@ -158,7 +158,9 @@ public class DefaultDependencyResolverTest {
     public void testClone() {
         final var thing = this.resolver.get(String.class);
 
-        final var newResolver = new DependencyResolver(this.resolver);
+        final var newResolver = new DefaultDependencyResolver(
+                (DefaultDependencyResolver) this.resolver
+        );
 
         final var other = newResolver.get(String.class);
 
@@ -183,15 +185,17 @@ public class DefaultDependencyResolverTest {
         final var simpleImplicit = this.resolver.get(SimpleImplicit.class);
         assertThat(simpleImplicit).extracting(SimpleImplicit::getLeft).isNotNull();
         assertThat(simpleImplicit).extracting(SimpleImplicit::getRight).isNull();
-        assertThat(factory).isInstanceOf(IDependencyResolver.CapturedSupplier.class)
-                .extracting(f -> ((IDependencyResolver.CapturedSupplier) f).getSupplier())
+        assertThat(factory).isInstanceOf(FactoryInvokingDependencyResolver.CapturedSupplier.class)
+                .extracting(f -> ((FactoryInvokingDependencyResolver.CapturedSupplier) f)
+                        .getSupplier()
+                )
                 .isSameAs(supplier);
     }
 
     @Test
     public void testCapturedSupplierIsManual() {
         assertThrows(UnresolvableDependencyException.class,
-                () -> this.resolver.get(IDependencyResolver.CapturedSupplier.class)
+                () -> this.resolver.get(FactoryInvokingDependencyResolver.CapturedSupplier.class)
         );
     }
 
@@ -235,7 +239,7 @@ public class DefaultDependencyResolverTest {
          * @throws UnresolvableDependencyException if the dependency cannot be resolved
          */
         @Override
-        public SimpleImplicit build(final DependencyResolver resolver) {
+        public SimpleImplicit build(final BasicDependencyResolver resolver) {
             ++this.numInvocations;
             return new SimpleImplicit(new NullaryConstructor(), null);
         }
