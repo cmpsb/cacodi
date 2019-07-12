@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Luc Everse
  */
 public class DefaultDependencyResolverTest {
-    private DependencyResolver resolver;
+    private DefaultDependencyResolver resolver;
 
     @BeforeEach
     public void before() {
-        this.resolver = new DependencyResolver();
+        this.resolver = new DefaultDependencyResolver();
     }
 
     @Test
@@ -156,7 +156,7 @@ public class DefaultDependencyResolverTest {
     public void testClone() {
         final var thing = this.resolver.get(String.class);
 
-        final var newResolver = new DependencyResolver(this.resolver);
+        final var newResolver = new DefaultDependencyResolver(this.resolver);
 
         final var other = newResolver.get(String.class);
 
@@ -203,7 +203,7 @@ public class DefaultDependencyResolverTest {
          * @throws UnresolvableDependencyException if the dependency cannot be resolved
          */
         @Override
-        public SimpleImplicit build(final DependencyResolver resolver) {
+        public SimpleImplicit build(final DefaultDependencyResolver resolver) {
             ++this.numInvocations;
             return new SimpleImplicit(new NullaryConstructor(), null);
         }

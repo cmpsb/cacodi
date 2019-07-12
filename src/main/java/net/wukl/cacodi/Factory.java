@@ -22,5 +22,5 @@ public interface Factory<T> {
      *
      * @throws UnresolvableDependencyException if the dependency cannot be resolved
      */
-    T build(DependencyResolver resolver) throws UnresolvableDependencyException;
+    T build(DefaultDependencyResolver resolver) throws UnresolvableDependencyException;
 }

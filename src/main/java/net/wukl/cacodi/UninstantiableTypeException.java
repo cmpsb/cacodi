@@ -2,9 +2,9 @@ package net.wukl.cacodi;
 
 /**
  * Thrown if the user attempts to register an implementing class (using the
- * {@link IDependencyResolver#implement(Class, Class)} or
- * {@link IDependencyResolver#implementDefault(Class, Class)} methods) that is a not instantiable,
- * i.e. another interface or an abstract class.
+ * {@link InterfaceMappingDependencyResolver#implement(Class, Class)} or
+ * {@link InterfaceMappingDependencyResolver#implementDefault(Class, Class)} methods)
+ * that is a not instantiable, i.e. another interface or an abstract class.
  */
 public class UninstantiableTypeException extends RuntimeException {
     /**

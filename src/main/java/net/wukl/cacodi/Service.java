@@ -14,14 +14,14 @@ public abstract class Service {
     /**
      * The dependency resolver to use.
      */
-    @Inject private DependencyResolver resolver;
+    @Inject private DefaultDependencyResolver resolver;
 
     /**
      * Returns the dependency resolver through which it was instantiated.
      *
      * @return the dependency resolver
      */
-    public DependencyResolver getResolver() {
+    public DefaultDependencyResolver getResolver() {
         return this.resolver;
     }
 
