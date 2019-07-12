@@ -1,12 +1,14 @@
 package net.wukl.cacodi;
 
+import java.util.function.Function;
+
 /**
  * The general interface of a dependency resolver.
  *
  * All resolver variants implement this set of methods and maybe more, depending on their
  * capabilities.
  */
-public interface DependencyResolver {
+public interface DependencyResolver extends Function<Class<?>, Object> {
     /**
      * A global, non-replaceable resolver instance.
      */
@@ -35,4 +37,9 @@ public interface DependencyResolver {
      * @throws UnresolvableDependencyException if one or more dependencies could not be satisfied
      */
     <T> T get(Class<T> type);
+
+    @Override
+    default Object apply(final Class<?> type) {
+        return this.get(type);
+    }
 }
