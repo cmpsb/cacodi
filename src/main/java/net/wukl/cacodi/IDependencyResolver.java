@@ -154,6 +154,7 @@ public interface IDependencyResolver {
          *
          * @param supplier the captured supplier
          */
+        @Manual
         public CapturedSupplier(final Supplier<T> supplier) {
             this.supplier = supplier;
         }

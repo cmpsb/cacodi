@@ -188,6 +188,13 @@ public class DefaultDependencyResolverTest {
                 .isSameAs(supplier);
     }
 
+    @Test
+    public void testCapturedSupplierIsManual() {
+        assertThrows(UnresolvableDependencyException.class,
+                () -> this.resolver.get(IDependencyResolver.CapturedSupplier.class)
+        );
+    }
+
     private class PrivateInnerClass {
 
     }
